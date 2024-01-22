@@ -46,7 +46,7 @@ namespace BookingAPI.Controllers
         }
 
         // Shows the booking with the given id.
-        [HttpGet]
+        [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var result = await _context.Bookings.FindAsync(id);
