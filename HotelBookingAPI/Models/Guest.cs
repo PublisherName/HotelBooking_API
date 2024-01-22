@@ -48,5 +48,9 @@ namespace GuestAPI.Models
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Number of nights must be greater than 0")]
         public int NumberOfNights { get; set; }
+
+        [Required]
+        [StringLength(50, MinimumLength = 5, ErrorMessage = "Password must be between 2 and 50 characters")]
+        public string? GuestPassword { get; set; }
     }
 }
