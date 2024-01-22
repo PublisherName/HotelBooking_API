@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
-using HotelBookingAPI.Models;
-using HotelBookingAPI.Data;
+using BookingAPI.Models;
+using BookingAPI.Data;
 
-namespace HotelBookingAPI.Controllers
+namespace BookingAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class HotelBookingController(ApiContext context) : ControllerBase
+    public class BookingController(ApiContext context) : ControllerBase
     {
         private readonly ApiContext _context = context;
 
         /// Creates a new booking or updates an existing one.
         [HttpPost]
-        public async Task<ActionResult> CreateEdit(HotelBooking booking)
+        public async Task<ActionResult> CreateEdit(Booking booking)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -30,7 +30,7 @@ namespace HotelBookingAPI.Controllers
                     return NotFound();
                 }
 
-                if (await TryUpdateModelAsync<HotelBooking>(
+                if (await TryUpdateModelAsync<Booking>(
                     bookingInDb,
                     "",
                     b => b.RoomNumber, b => b.ClientName))

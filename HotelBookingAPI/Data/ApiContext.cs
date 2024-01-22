@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using HotelBookingAPI.Models;
+using BookingAPI.Models;
 
-namespace HotelBookingAPI.Data
+namespace BookingAPI.Data
 {
     public class ApiContext : DbContext
     {
 
-        public DbSet<HotelBooking> Bookings { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
 
         public ApiContext(DbContextOptions<ApiContext> options)
             : base(options)

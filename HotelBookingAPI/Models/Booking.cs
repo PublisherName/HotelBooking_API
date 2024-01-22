@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HotelBookingAPI.Models
+namespace BookingAPI.Models
 {
-    public class HotelBooking
+    public class Booking
     {
         public int Id { get; set; }
 
