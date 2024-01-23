@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookingAPI.Models;
 using BookingAPI.Data;
+using BookingAPI.Service;
 
 namespace BookingAPI.Controllers
 {
@@ -16,57 +17,26 @@ namespace BookingAPI.Controllers
         public async Task<ActionResult> CreateEdit(Booking booking)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(new { errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
-            }
+                return BadRequest(ModelState);
 
-            var room = await _context.Rooms.FindAsync(booking.RoomId);
-            if (room == null)
-            {
-                return BadRequest(new { errors = "The room id does not exist" });
-            }
+            var validateEntities = await new BookingService(_context).ValidateBookingEntitiesExist(booking);
 
-            var guest = await _context.Guests.FindAsync(booking.GuestId);
-            if (guest == null)
-            {
-                return BadRequest(new { errors = "The guest id does not exist" });
-            }
+            if (validateEntities is BadRequestObjectResult badRequest)
+                return BadRequest(badRequest.Value);
 
-            if (booking.Id == 0)
+            if (booking.Id != 0)
             {
-                _context.Bookings.Add(booking);
+                var updateBooking = await new BookingService(_context).UpdateBooking(booking);
+                if (updateBooking is BadRequestObjectResult badRequestUpdate)
+                    return BadRequest(badRequestUpdate.Value);
             }
             else
-            {
-                var bookingInDb = await _context.Bookings.FindAsync(booking.Id);
+                _context.Bookings.Add(booking);
 
-                if (bookingInDb == null)
-                {
-                    return BadRequest(new { errors = "The booking id does not exist" });
-                }
-
-                if (!await TryUpdateModelAsync<Booking>(
-                    bookingInDb,
-                    "",
-                    b => b.ArrivalDate,
-                    b => b.DepartureDate,
-                    b => b.NumberOfNights,
-                    b => b.RoomId,
-                    b => b.GuestId,
-                    b => b.Status
-                    ))
-                {
-                    return BadRequest(new { errors = "Failed to update the booking" });
-                }
-            }
-
-            try
+            var saveChanges = await new BookingService(_context).SaveChanges();
+            if (saveChanges is BadRequestObjectResult badRequestSave)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { errors = $"An error occurred while saving changes: {ex.Message}" });
+                return BadRequest(badRequestSave.Value);
             }
 
             return Ok(booking);

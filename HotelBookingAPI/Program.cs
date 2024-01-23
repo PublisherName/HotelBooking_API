@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BookingAPI.Data;
+using GuestAPI.Service;
+using BookingAPI.Service;
 
 DotNetEnv.Env.Load();
 
@@ -13,7 +15,14 @@ builder.Services.AddSingleton(x =>
     return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKeyString));
 });
 
-builder.Services.AddDbContext<ApiContext>(opt => opt.UseInMemoryDatabase(builder.Configuration["DB_NAME"] ?? throw new ArgumentException("DB_NAME is required")));
+builder.Services.AddDbContext<ApiContext>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        new MySqlServerVersion(new Version(7, 0, 0))
+    )
+);
+
+builder.Services.AddScoped<GuestService>();
+builder.Services.AddScoped<BookingService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

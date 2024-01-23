@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using GuestAPI.Models;
 using BookingAPI.Data;
+using GuestAPI.Service;
 
 namespace GuestAPI.Controllers
 {
@@ -19,6 +20,11 @@ namespace GuestAPI.Controllers
 
             if (guest.Id == 0)
             {
+                var uniqueCheckResult = await new GuestService(_context).CheckUniqueEmailAndPhone(guest);
+                if (uniqueCheckResult != null)
+                {
+                    return uniqueCheckResult;
+                }
                 _context.Guests.Add(guest);
             }
             else

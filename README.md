@@ -8,6 +8,7 @@ This is a simple hotel booking API using C# and ASP.NET Core. It is a RESTful AP
     ```sh
     sudo pacman -S dotnet-sdk
     sudo pacman -S dotnet-runtime
+    dotnet tool install --global dotnet-ef
     ```
     
 ## Getting Started
@@ -34,4 +35,12 @@ To get a local copy up and running follow these simple steps.
     https://localhost:5293/swagger/index.html
     ```
 
-## Usage
+## Migration
+1. Add migration
+    ```sh
+    dotnet ef migrations add InitialCreate
+    ```
+2. Update database
+    ```sh
+    dotnet ef database update
+    ```

@@ -16,6 +16,8 @@ namespace GuestAPI.Models
 
         [Required]
         [RegularExpression(@"^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid Email Address")]
+        [StringLength(255, ErrorMessage = "Email address cannot be longer than 255 characters.")]
+
         public string? GuestEmail { get; set; }
 
         [Required]
