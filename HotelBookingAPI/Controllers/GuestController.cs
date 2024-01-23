@@ -27,7 +27,7 @@ namespace GuestAPI.Controllers
 
                 if (guestInDb == null)
                 {
-                    return NotFound();
+                    return BadRequest(new { errors = "The guest id does not exist" });
                 }
 
                 if (await TryUpdateModelAsync<Guest>(
@@ -40,9 +40,7 @@ namespace GuestAPI.Controllers
                     b => b.GuestAddress,
                     b => b.GuestCity,
                     b => b.GuestCountry,
-                    b => b.ArrivalDate,
-                    b => b.DepartureDate,
-                    b => b.NumberOfNights
+                    b => b.GuestPassword
                     ))
                 {
                     await _context.SaveChangesAsync();
@@ -62,7 +60,7 @@ namespace GuestAPI.Controllers
             var result = await _context.Guests.FindAsync(id);
 
             if (result == null)
-                return NotFound();
+                return NotFound(new { errors = "The guest id does not exist" });
 
             return Ok(result);
         }
@@ -74,7 +72,7 @@ namespace GuestAPI.Controllers
             var result = await _context.Guests.FindAsync(id);
 
             if (result == null)
-                return NotFound();
+                return BadRequest(new { errors = "The guest id does not exist" });
 
             _context.Guests.Remove(result);
             await _context.SaveChangesAsync();

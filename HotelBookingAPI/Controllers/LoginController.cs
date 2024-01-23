@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace LoginAPI.Controllers
 {
@@ -47,7 +46,7 @@ namespace LoginAPI.Controllers
             return Unauthorized(new { message = "Invalid password" });
         }
 
-        private bool VerifyPassword(string enteredPassword, string storedPassword)
+        private static bool VerifyPassword(string enteredPassword, string storedPassword)
         {
             return enteredPassword == storedPassword;
         }

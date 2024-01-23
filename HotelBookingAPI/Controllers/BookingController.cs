@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using BookingAPI.Models;
 using BookingAPI.Data;
 
@@ -15,7 +16,21 @@ namespace BookingAPI.Controllers
         public async Task<ActionResult> CreateEdit(Booking booking)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            {
+                return BadRequest(new { errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
+            }
+
+            var room = await _context.Rooms.FindAsync(booking.RoomId);
+            if (room == null)
+            {
+                return BadRequest(new { errors = "The room id does not exist" });
+            }
+
+            var guest = await _context.Guests.FindAsync(booking.GuestId);
+            if (guest == null)
+            {
+                return BadRequest(new { errors = "The guest id does not exist" });
+            }
 
             if (booking.Id == 0)
             {
@@ -27,34 +42,48 @@ namespace BookingAPI.Controllers
 
                 if (bookingInDb == null)
                 {
-                    return NotFound();
+                    return BadRequest(new { errors = "The booking id does not exist" });
                 }
 
-                if (await TryUpdateModelAsync<Booking>(
+                if (!await TryUpdateModelAsync<Booking>(
                     bookingInDb,
                     "",
-                    b => b.RoomNumber, b => b.ClientName))
+                    b => b.ArrivalDate,
+                    b => b.DepartureDate,
+                    b => b.NumberOfNights,
+                    b => b.RoomId,
+                    b => b.GuestId,
+                    b => b.Status
+                    ))
                 {
-                    await _context.SaveChangesAsync();
-                    return Ok(booking);
+                    return BadRequest(new { errors = "Failed to update the booking" });
                 }
             }
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { errors = $"An error occurred while saving changes: {ex.Message}" });
+            }
 
             return Ok(booking);
         }
 
         // Shows the booking with the given id.
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("{guestId}")]
+        public async Task<IActionResult> GetByGuestId(int guestId)
         {
-            var result = await _context.Bookings.FindAsync(id);
+            var bookings = await _context.Bookings
+                .Where(b => b.GuestId == guestId)
+                .ToListAsync();
 
-            if (result == null)
-                return NotFound();
+            if (bookings.Count == 0)
+                return BadRequest(new { errors = "No booking record found." });
 
-            return Ok(result);
+            return Ok(bookings);
         }
 
         // Deletes the booking with the given id.
@@ -64,7 +93,7 @@ namespace BookingAPI.Controllers
             var result = await _context.Bookings.FindAsync(id);
 
             if (result == null)
-                return NotFound();
+                return BadRequest(new { errors = "The booking id does not exist" });
 
             _context.Bookings.Remove(result);
             await _context.SaveChangesAsync();
