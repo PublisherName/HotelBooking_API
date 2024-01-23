@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using GuestAPI.Attribute;
 
 namespace GuestAPI.Models
 {
@@ -17,6 +16,8 @@ namespace GuestAPI.Models
 
         [Required]
         [RegularExpression(@"^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid Email Address")]
+        [StringLength(255, ErrorMessage = "Email address cannot be longer than 255 characters.")]
+
         public string? GuestEmail { get; set; }
 
         [Required]
@@ -37,16 +38,7 @@ namespace GuestAPI.Models
         public string? GuestCountry { get; set; }
 
         [Required]
-        [FutureDate(ErrorMessage = "Arrival date must be today or a future date")]
-        public DateTime ArrivalDate { get; set; }
-
-        [Required]
-        [FutureDate(ErrorMessage = "Departure Date must be today or a future date")]
-        [DepartureDate("ArrivalDate", ErrorMessage = "Departure date must be greater than arrival date")]
-        public DateTime DepartureDate { get; set; }
-
-        [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Number of nights must be greater than 0")]
-        public int NumberOfNights { get; set; }
+        [StringLength(50, MinimumLength = 5, ErrorMessage = "Password must be between 2 and 50 characters")]
+        public string? GuestPassword { get; set; }
     }
 }

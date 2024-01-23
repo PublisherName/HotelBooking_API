@@ -5,21 +5,24 @@ using RoomAPI.Models;
 
 namespace BookingAPI.Data
 {
-    public class ApiContext : DbContext
+    public class ApiContext(DbContextOptions<ApiContext> options) : DbContext(options)
     {
 
         public DbSet<Booking> Bookings { get; set; }
 
         public DbSet<Guest> Guests { get; set; }
 
-        public DbSet<Room> Rooms { get; set; }
-
-
-        public ApiContext(DbContextOptions<ApiContext> options)
-            : base(options)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Guest>()
+                .HasIndex(g => g.GuestEmail)
+                .IsUnique();
 
+            modelBuilder.Entity<Guest>()
+                .HasIndex(g => g.GuestPhone)
+                .IsUnique();
         }
 
+        public DbSet<Room> Rooms { get; set; }
     }
 }

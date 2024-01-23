@@ -487,3 +487,5 @@ $RECYCLE.BIN/
 
 **/bin/
 **/obj/
+
+HotelBookingAPI/appsettings.json

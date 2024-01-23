@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using BookingAPI.Models;
 using BookingAPI.Data;
+using BookingAPI.Service;
 
 namespace BookingAPI.Controllers
 {
@@ -17,44 +19,41 @@ namespace BookingAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (booking.Id == 0)
+            var validateEntities = await new BookingService(_context).ValidateBookingEntitiesExist(booking);
+
+            if (validateEntities is BadRequestObjectResult badRequest)
+                return BadRequest(badRequest.Value);
+
+            if (booking.Id != 0)
             {
-                _context.Bookings.Add(booking);
+                var updateBooking = await new BookingService(_context).UpdateBooking(booking);
+                if (updateBooking is BadRequestObjectResult badRequestUpdate)
+                    return BadRequest(badRequestUpdate.Value);
             }
             else
+                _context.Bookings.Add(booking);
+
+            var saveChanges = await new BookingService(_context).SaveChanges();
+            if (saveChanges is BadRequestObjectResult badRequestSave)
             {
-                var bookingInDb = await _context.Bookings.FindAsync(booking.Id);
-
-                if (bookingInDb == null)
-                {
-                    return NotFound();
-                }
-
-                if (await TryUpdateModelAsync<Booking>(
-                    bookingInDb,
-                    "",
-                    b => b.RoomNumber, b => b.ClientName))
-                {
-                    await _context.SaveChangesAsync();
-                    return Ok(booking);
-                }
+                return BadRequest(badRequestSave.Value);
             }
-
-            await _context.SaveChangesAsync();
 
             return Ok(booking);
         }
 
         // Shows the booking with the given id.
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("{guestId}")]
+        public async Task<IActionResult> GetByGuestId(int guestId)
         {
-            var result = await _context.Bookings.FindAsync(id);
+            var bookings = await _context.Bookings
+                .Where(b => b.GuestId == guestId)
+                .ToListAsync();
 
-            if (result == null)
-                return NotFound();
+            if (bookings.Count == 0)
+                return BadRequest(new { errors = "No booking record found." });
 
-            return Ok(result);
+            return Ok(bookings);
         }
 
         // Deletes the booking with the given id.
@@ -64,7 +63,7 @@ namespace BookingAPI.Controllers
             var result = await _context.Bookings.FindAsync(id);
 
             if (result == null)
-                return NotFound();
+                return BadRequest(new { errors = "The booking id does not exist" });
 
             _context.Bookings.Remove(result);
             await _context.SaveChangesAsync();

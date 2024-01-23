@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GuestAPI.Attribute
+namespace BookingAPI.Attribute
 {
     public class FutureDateAttribute : ValidationAttribute
     {
