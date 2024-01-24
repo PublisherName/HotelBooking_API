@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BookingAPI.Data;
 using BookingAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace BookingAPI.Service
@@ -41,6 +42,37 @@ namespace BookingAPI.Service
             bookingInDb.GuestId = booking.GuestId;
             bookingInDb.Status = booking.Status;
 
+            return null;
+        }
+
+        public async Task<ActionResult?> CheckRoomAvailability(Booking booking)
+        {
+            var overlappingBookings = await _context.Bookings
+                .Where(b => b.RoomId == booking.RoomId &&
+                            b.ArrivalDate < booking.DepartureDate &&
+                            b.DepartureDate > booking.ArrivalDate)
+                .ToListAsync();
+
+            if (overlappingBookings.Count != 0)
+            {
+                var sameGuestBooking = overlappingBookings.FirstOrDefault(b => b.GuestId == booking.GuestId);
+                if (sameGuestBooking != null)
+                {
+                    return new BadRequestObjectResult(new
+                    {
+                        errors = $"You have already booked this room from {sameGuestBooking.ArrivalDate.ToShortDateString()} to {sameGuestBooking.DepartureDate.ToShortDateString()}"
+                    });
+                }
+                else
+                {
+                    var nextVacantDate = overlappingBookings.Max(b => b.DepartureDate);
+                    return new BadRequestObjectResult(new
+                    {
+                        errors = $"The room is not available for the selected dates. It will be vacant from {nextVacantDate.AddDays(1).ToShortDateString()}"
+
+                    });
+                }
+            }
             return null;
         }
 

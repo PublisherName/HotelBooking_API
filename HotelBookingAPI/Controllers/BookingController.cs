@@ -20,9 +20,12 @@ namespace BookingAPI.Controllers
                 return BadRequest(ModelState);
 
             var validateEntities = await new BookingService(_context).ValidateBookingEntitiesExist(booking);
-
             if (validateEntities is BadRequestObjectResult badRequest)
                 return BadRequest(badRequest.Value);
+
+            var checkRoomAvailability = await new BookingService(_context).CheckRoomAvailability(booking);
+            if (checkRoomAvailability is BadRequestObjectResult badRequestAvailability)
+                return BadRequest(badRequestAvailability.Value);
 
             if (booking.Id != 0)
             {
@@ -31,7 +34,9 @@ namespace BookingAPI.Controllers
                     return BadRequest(badRequestUpdate.Value);
             }
             else
+            {
                 _context.Bookings.Add(booking);
+            }
 
             var saveChanges = await new BookingService(_context).SaveChanges();
             if (saveChanges is BadRequestObjectResult badRequestSave)
