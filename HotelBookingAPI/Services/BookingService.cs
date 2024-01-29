@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using BookingAPI.Data;
 using BookingAPI.Models;
-using Microsoft.EntityFrameworkCore;
+using RoomAPI.Models;
+
 
 
 namespace BookingAPI.Service
@@ -88,6 +90,33 @@ namespace BookingAPI.Service
             }
 
             return null;
+        }
+
+        public async Task<List<int>> GetRoomIdsByType(string roomType)
+        {
+            var roomIdsQuery = _context.Rooms.AsQueryable();
+
+            if (!string.IsNullOrEmpty(roomType) && !string.Equals(roomType, "all", StringComparison.OrdinalIgnoreCase))
+            {
+                roomIdsQuery = roomIdsQuery.Where(r => r.RoomType == roomType);
+            }
+
+            return await roomIdsQuery.Select(r => r.Id).ToListAsync();
+        }
+
+        public async Task<List<int>> GetConflictingBookingRoomIds(DateTime startDate, DateTime endDate, List<int> roomIds)
+        {
+            return await _context.Bookings
+                .Where(b => roomIds.Contains(b.RoomId) && b.ArrivalDate < endDate && b.DepartureDate > startDate)
+                .Select(b => b.RoomId)
+                .ToListAsync();
+        }
+
+        public async Task<List<Room>> GetAvailableRooms(List<int> roomIds, List<int> conflictingRoomIds)
+        {
+            return await _context.Rooms
+                .Where(r => roomIds.Contains(r.Id) && !conflictingRoomIds.Contains(r.Id))
+                .ToListAsync();
         }
     }
 }

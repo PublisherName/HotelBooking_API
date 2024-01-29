@@ -65,26 +65,21 @@ namespace BookingAPI.Controllers
         [HttpGet("{startDate}/{endDate}/{roomType}")]
         public async Task<IActionResult> GetAvailableRooms(DateTime startDate, DateTime endDate, string roomType)
         {
-            var roomIdsQuery = _context.Rooms.AsQueryable();
-
-            if (!string.IsNullOrEmpty(roomType) && !string.Equals(roomType, "all", StringComparison.OrdinalIgnoreCase))
+            if (startDate.Date < DateTime.Today || endDate.Date < DateTime.Today)
             {
-                roomIdsQuery = roomIdsQuery.Where(r => r.RoomType == roomType);
+                return BadRequest(new { errors = "Arrival date and departure date cannot be in the past." });
             }
 
-            var roomIds = await roomIdsQuery.Select(r => r.Id).ToListAsync();
+            var roomIds = await new BookingService(_context).GetRoomIdsByType(roomType);
 
-            var conflictingBookings = await _context.Bookings
-                .Where(b => roomIds.Contains(b.RoomId) && b.ArrivalDate < endDate && b.DepartureDate > startDate)
-                .Select(b => b.RoomId)
-                .ToListAsync();
+            var conflictingRoomIds = await new BookingService(_context).GetConflictingBookingRoomIds(startDate, endDate, roomIds);
 
-            var availableRooms = await _context.Rooms
-                .Where(r => !conflictingBookings.Contains(r.Id))
-                .ToListAsync();
+            var availableRooms = await new BookingService(_context).GetAvailableRooms(roomIds, conflictingRoomIds);
 
             if (availableRooms.Count == 0)
+            {
                 return BadRequest(new { errors = "No room record found." });
+            }
 
             return Ok(availableRooms);
         }
