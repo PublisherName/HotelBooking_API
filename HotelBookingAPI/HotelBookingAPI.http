@@ -8,14 +8,20 @@ Content-Type: application/json
   "id": 0,
   "guestId": 1,
   "roomId": 1,
-  "arrivalDate": "2022-12-01",
-  "departureDate": "2022-12-10"
+  "arrivalDate": "2025-01-01",
+  "departureDate": "2025-01-03",
+  "numberOfNights": 3
 }
-
 ###
 
 ### Get Booking by Guest ID
 GET {{host}}/api/Booking/GetByGuestId/1
+Accept: application/json
+
+###
+
+### Get Available Rooms at a Date Range
+GET {{host}}/api/Booking/GetAvailableRooms/2025-01-01/2025-01-03/all
 Accept: application/json
 
 ###

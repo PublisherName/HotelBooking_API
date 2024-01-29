@@ -71,6 +71,7 @@ namespace HotelBookingAPI.Migrations
 
                     b.Property<string>("GuestEmail")
                         .IsRequired()
+                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("GuestName")

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelBookingAPI.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    [Migration("20240123094805_GuestEmailPhoneUnique")]
-    partial class GuestEmailPhoneUnique
+    [Migration("20240129105326_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -74,6 +74,7 @@ namespace HotelBookingAPI.Migrations
 
                     b.Property<string>("GuestEmail")
                         .IsRequired()
+                        .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("GuestName")

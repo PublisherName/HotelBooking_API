@@ -32,5 +32,6 @@ namespace BookingAPI.Models
         [Required]
         [Range(0, 1, ErrorMessage = "Status must be 0 or 1")]
         public int Status { get; set; }
+
     }
 }

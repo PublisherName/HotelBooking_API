@@ -61,6 +61,35 @@ namespace BookingAPI.Controllers
             return Ok(bookings);
         }
 
+        // Shows the rooms that are available for the given date range with room type.
+        [HttpGet("{startDate}/{endDate}/{roomType}")]
+        public async Task<IActionResult> GetAvailableRooms(DateTime startDate, DateTime endDate, string roomType)
+        {
+            var roomIdsQuery = _context.Rooms.AsQueryable();
+
+            if (!string.IsNullOrEmpty(roomType) && !string.Equals(roomType, "all", StringComparison.OrdinalIgnoreCase))
+            {
+                roomIdsQuery = roomIdsQuery.Where(r => r.RoomType == roomType);
+            }
+
+            var roomIds = await roomIdsQuery.Select(r => r.Id).ToListAsync();
+
+            var conflictingBookings = await _context.Bookings
+                .Where(b => roomIds.Contains(b.RoomId) && b.ArrivalDate < endDate && b.DepartureDate > startDate)
+                .Select(b => b.RoomId)
+                .ToListAsync();
+
+            var availableRooms = await _context.Rooms
+                .Where(r => !conflictingBookings.Contains(r.Id))
+                .ToListAsync();
+
+            if (availableRooms.Count == 0)
+                return BadRequest(new { errors = "No room record found." });
+
+            return Ok(availableRooms);
+        }
+
+
         // Deletes the booking with the given id.
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)

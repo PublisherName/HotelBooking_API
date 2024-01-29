@@ -44,9 +44,9 @@ namespace HotelBookingAPI.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     GuestSurname = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    GuestEmail = table.Column<string>(type: "longtext", nullable: false)
+                    GuestEmail = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    GuestPhone = table.Column<string>(type: "longtext", nullable: false)
+                    GuestPhone = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     GuestAddress = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -83,6 +83,18 @@ namespace HotelBookingAPI.Migrations
                     table.PrimaryKey("PK_Rooms", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Guests_GuestEmail",
+                table: "Guests",
+                column: "GuestEmail",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Guests_GuestPhone",
+                table: "Guests",
+                column: "GuestPhone",
+                unique: true);
         }
 
         /// <inheritdoc />
