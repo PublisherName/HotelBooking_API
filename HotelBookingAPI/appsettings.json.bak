@@ -9,5 +9,7 @@
   "ConnectionStrings": {
     "DefaultConnection": "server=<mysql_server>;database=<data_basename>;user=<username>;password=<password>"
   },
-  "SecretKey": "<secret_key>"
+  "AppSettings": {
+    "SecretKey": "<SecretKey>"
+  }
 }

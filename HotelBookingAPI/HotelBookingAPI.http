@@ -1,6 +1,115 @@
-@HotelBookingAPI_HostAddress = http://localhost:5293
+@host = http://localhost:5293
 
-GET {{HotelBookingAPI_HostAddress}}/weatherforecast/
+### Create or Edit a Booking
+POST {{host}}/api/Booking/CreateEdit
+Content-Type: application/json
+
+{
+  "id": 0,
+  "guestId": 1,
+  "roomId": 1,
+  "arrivalDate": "2022-12-01",
+  "departureDate": "2022-12-10"
+}
+
+###
+
+### Get Booking by Guest ID
+GET {{host}}/api/Booking/GetByGuestId/1
 Accept: application/json
+
+###
+
+### Delete a Booking
+DELETE {{host}}/api/Booking/Delete/1
+Accept: application/json
+
+###
+
+### Get All Bookings
+GET {{host}}/api/booking/GetAll
+Accept: application/json
+
+
+###
+
+### Create or Edit a Guest
+POST {{host}}/api/Guest/CreateEdit
+Content-Type: application/json
+
+{
+  "id": 0,
+  "guestName": "John",
+  "guestSurname": "Doe",
+  "guestEmail": "john.doe@example.com",
+  "guestPhone": "1234567890",
+  "guestAddress": "123 Main St",
+  "guestCity": "City",
+  "guestCountry": "Country",
+  "guestPassword": "password"
+}
+
+###
+
+### Get Guest by ID
+GET {{host}}/api/Guest/Get/1
+Accept: application/json
+
+###
+
+### Delete a Guest
+DELETE {{host}}/api/Guest/Delete/1
+Accept: application/json
+
+###
+
+### Get All Guests
+GET {{host}}/api/Guest/GetAll
+Accept: application/json
+
+###
+
+
+### Create or Edit a Room
+POST {{host}}/api/Room/CreateEdit
+Content-Type: application/json
+
+{
+  "id": 0,
+  "roomName": "Room 101",
+  "roomDescription": "A cozy room",
+  "roomType": "Single",
+  "roomNoOfBed": 1,
+  "roomPricePerNight": 100
+}
+
+###
+
+### Get Room by ID
+GET {{host}}/api/Room/Get/1
+Accept: application/json
+
+###
+
+### Delete a Room
+DELETE {{host}}/api/Room/Delete/1
+Accept: application/json
+
+###
+
+### Get All Rooms
+GET {{host}}/api/Room/GetAll
+Accept: application/json
+
+###
+
+### Login
+POST {{host}}/api/Login/Login
+Content-Type: application/json
+
+{
+  "Email": "john.doe@example.com",
+  "Password": "password"
+}
 
 ###

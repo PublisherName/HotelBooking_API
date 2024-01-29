@@ -5,13 +5,11 @@ using BookingAPI.Data;
 using GuestAPI.Service;
 using BookingAPI.Service;
 
-DotNetEnv.Env.Load();
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton(x =>
 {
-    var secretKeyString = builder.Configuration["SECRET_KEY"] ?? throw new ArgumentException("Secret key is required");
+    var secretKeyString = builder.Configuration.GetSection("AppSettings")["SecretKey"] ?? throw new ArgumentException("Secret key is required");
     return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKeyString));
 });
 
@@ -35,6 +33,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.MapGet("/", context =>
+    {
+        context.Response.Redirect("/swagger");
+        return Task.CompletedTask;
+    });
 }
 
 app.UseHttpsRedirection();
