@@ -48,6 +48,35 @@ namespace BookingAPI.Controllers
         }
 
         // Shows the booking with the given id.
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var booking = await _context.Bookings
+                .Join(_context.Guests,
+                    booking => booking.GuestId,
+                    guest => guest.Id,
+                    (booking, guest) => new { Booking = booking, Guest = guest })
+                .Where(bg => bg.Booking.Id == id)
+                .Select(bg => new
+                {
+                    bg.Booking.Id,
+                    bg.Booking.RoomId,
+                    bg.Guest.GuestName,
+                    GuestId = bg.Guest.Id,
+                    bg.Booking.ArrivalDate,
+                    bg.Booking.DepartureDate,
+                    bg.Booking.NumberOfNights,
+                    bg.Booking.Status,
+                })
+                .FirstOrDefaultAsync();
+
+            if (booking == null)
+                return BadRequest(new { errors = "No booking record found." });
+
+            return Ok(booking);
+        }
+
+        // Shows the booking with the given id.
         [HttpGet("{guestId}")]
         public async Task<IActionResult> GetByGuestId(int guestId)
         {
