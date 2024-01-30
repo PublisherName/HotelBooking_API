@@ -7,6 +7,17 @@ using BookingAPI.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                        .AllowAnyHeader();
+        });
+});
+
 builder.Services.AddSingleton(x =>
 {
     var secretKeyString = builder.Configuration.GetSection("AppSettings")["SecretKey"] ?? throw new ArgumentException("Secret key is required");
@@ -28,6 +39,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseCors("AllowAllOrigins");
 
 if (app.Environment.IsDevelopment())
 {
